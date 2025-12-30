@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  BIN_NAME: new_test_server
+  BASE_PATH: /usr/local/games/NewTestServer
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
@@ -28,7 +32,7 @@ jobs:
         run: |
           go mod tidy
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-          go build -o new_test_server main.go
+          go build -o ${{ env.BIN_NAME }} main.go
 
       # 4️⃣ 上传新二进制（临时文件，不影响线上）
       - name: Upload new binary
@@ -37,8 +41,8 @@ jobs:
           host: ${{ matrix.server }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_KEY }}
-          source: server/new_test_server
-          target: /usr/local/games/NewTestServer/server/tmp
+          source: server/${{ env.BIN_NAME }}
+          target: ${{ env.BASE_PATH }}/server/tmp
           overwrite: true                       # 每次覆盖
           strip_components: 1                   # 裁掉路径
 
@@ -52,10 +56,10 @@ jobs:
           script: |
             set -e
             
-            APP_DIR=/usr/local/games/NewTestServer/server
-            BIN=new_test_server
+            APP_DIR=${{ env.BASE_PATH }}/server
+            BIN=${{ env.BIN_NAME }}
             
-            mv $APP_DIR/tmp/new_test_server $APP_DIR/$BIN.new
+            mv $APP_DIR/tmp/$BIN $APP_DIR/$BIN.new
             
             echo "== stop old process (if exists) =="
             pgrep -f "$APP_DIR/$BIN" && pkill -f "$APP_DIR/$BIN" || echo "no old process"
@@ -66,11 +70,11 @@ jobs:
             
             echo "== start new process =="
             # 确保日志目录存在
-            mkdir -p /usr/local/games/NewTestServer/log
+            mkdir -p ${{ env.BASE_PATH }}/log
             
             nohup $APP_DIR/$BIN \
-              --conf /usr/local/games/NewTestServer/bin/conf/server.json \
-              --log  /usr/local/games/NewTestServer/bin/logs \
-              > /usr/local/games/NewTestServer/log/log.txt 2>&1 &
+              --conf ${{ env.BASE_PATH }}/bin/conf/server.json \
+              --log  ${{ env.BASE_PATH }}/bin/logs \
+              > ${{ env.BASE_PATH }}/log/log.txt 2>&1 &
             
             echo "== deploy success =="
