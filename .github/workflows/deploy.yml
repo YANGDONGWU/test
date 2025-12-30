@@ -44,6 +44,7 @@ jobs:
           source: ${{ env.BIN_NAME }}
           target: ${{ env.BASE_PATH }}/tmp
           overwrite: true                       # 每次覆盖
+          strip_components: 1                   # 裁掉路径
 
       # 5️⃣ 原子切换 + 重启（无空档）
       - name: Switch binary and restart
