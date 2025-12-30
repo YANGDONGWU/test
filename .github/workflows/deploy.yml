@@ -1,0 +1,59 @@
+name: Deploy New Test Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ 拉取仓库代码
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ 设置 Go 环境
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.1'
+
+      # 3️⃣ 构建项目
+      - name: Build Go project
+        working-directory: ./test/server
+        run: |
+          go mod tidy
+          go build -o test_server main.go
+
+      # 4️⃣ 停止旧服务（如果在远程服务器）
+      # 这里以 SSH 登录服务器示例
+      - name: Stop old server
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          script: |
+            pkill -f new_test_server || true
+
+      # 5️⃣ 上传新编译的二进制到服务器
+      - name: Upload new binary
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          source: ./server/new_test_server
+          target: /opt/project/NewTestServer/
+
+      # 6️⃣ 启动新服务
+      - name: Start server
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          script: |
+            nohup /opt/project/NewTestServer/new_test_server > /opt/project/NewTestServer/log/log.txt 2>&1 &
