@@ -31,7 +31,7 @@ jobs:
           go build -o new_test_server main.go
 
       # 4️⃣ 上传新二进制（临时文件，不影响线上）
-      - name: Upload new binary (temp)
+      - name: Upload new binary
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ matrix.server }}
@@ -40,7 +40,7 @@ jobs:
           source: server/new_test_server
           target: /usr/local/games/NewTestServer/server/new_test_server.new
           overwrite: true                       # 每次覆盖
-          strip_components: 0                   # 不裁掉路径
+          strip_components: 1                   # 裁掉路径
 
       # 5️⃣ 原子切换 + 重启（无空档）
       - name: Switch binary and restart
