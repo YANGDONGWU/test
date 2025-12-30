@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_KEY }}
           source: server/new_test_server
-          target: /usr/local/games/NewTestServer/server
+          target: /usr/local/games/NewTestServer/server/tmp
           overwrite: true                       # 每次覆盖
           strip_components: 1                   # 裁掉路径
 
@@ -54,6 +54,8 @@ jobs:
             
             APP_DIR=/usr/local/games/NewTestServer/server
             BIN=new_test_server
+            
+            mv $APP_DIR/tmp/new_test_server $APP_DIR/$BIN.new
             
             echo "== stop old process (if exists) =="
             pgrep -f "$APP_DIR/$BIN" && pkill -f "$APP_DIR/$BIN" || echo "no old process"
