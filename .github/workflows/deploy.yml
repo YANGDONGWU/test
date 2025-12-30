@@ -37,7 +37,7 @@ jobs:
           host: ${{ matrix.server }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_KEY }}
-          source: server/new_test_server
+          source: ./new_test_server
           target: /usr/local/games/NewTestServer/server/new_test_server.new
           overwrite: true                       # 每次覆盖
           strip_components: 1                   # 裁掉路径
