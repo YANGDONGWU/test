@@ -28,7 +28,6 @@ jobs:
 
       # 3️⃣ 构建
       - name: Build Go project
-        working-directory: .
         run: |
           go mod tidy
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
@@ -44,7 +43,6 @@ jobs:
           source: ${{ env.BIN_NAME }}
           target: ${{ env.BASE_PATH }}/tmp
           overwrite: true                       # 每次覆盖
-          strip_components: 1                   # 裁掉路径
 
       # 5️⃣ 原子切换 + 重启（无空档）
       - name: Switch binary and restart
