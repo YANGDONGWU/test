@@ -28,7 +28,7 @@ jobs:
 
       # 3️⃣ 构建
       - name: Build Go project
-        working-directory: .
+        working-directory: server
         run: |
           go mod tidy
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
@@ -41,8 +41,8 @@ jobs:
           host: ${{ matrix.server }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_KEY }}
-          source: ${{ env.BIN_NAME }}
-          target: ${{ env.BASE_PATH }}/tmp
+          source: server/${{ env.BIN_NAME }}
+          target: ${{ env.BASE_PATH }}/server/tmp
           overwrite: true                       # 每次覆盖
           strip_components: 1                   # 裁掉路径
 
@@ -56,7 +56,7 @@ jobs:
           script: |
             set -e
             
-            APP_DIR=${{ env.BASE_PATH }}
+            APP_DIR=${{ env.BASE_PATH }}/server
             BIN=${{ env.BIN_NAME }}
             
             mv $APP_DIR/tmp/$BIN $APP_DIR/$BIN.new
@@ -73,6 +73,8 @@ jobs:
             mkdir -p ${{ env.BASE_PATH }}/log
             
             nohup $APP_DIR/$BIN \
+              --conf ${{ env.BASE_PATH }}/bin/conf/server.json \
+              --log  ${{ env.BASE_PATH }}/bin/logs \
               > ${{ env.BASE_PATH }}/log/log.txt 2>&1 &
             
             echo "== deploy success =="

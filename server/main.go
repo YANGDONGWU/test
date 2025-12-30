@@ -1,7 +1,7 @@
-package main
+package server
 
-import "github.com/liangdas/mqant/log"
-
-func main() {
-	log.Info("test success!")
-}
+//import "github.com/liangdas/mqant/log"
+//
+//func oldmain() {
+//	log.Info("test success!")
+//}
